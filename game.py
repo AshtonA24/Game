@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+import math
 pygame.init()
 screen = pygame.display.set_mode((1400,800))
 pygame.display.set_caption("GAME")
@@ -141,8 +142,22 @@ class Enemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (randint(0,1400),randint(400,700)))
         self.left = False
         self.left_side_click = False
-        self.speed = 6
+        self.speed = 20
         self.moving = False
+        
+    def move(self):
+        x = self.rect.center[0] - player.rect.center[0]
+        y = self.rect.center[1] - player.rect.center[1]
+        angle = math.atan2(y, x)
+        speed = 2
+
+        # Calculate the new position based on the angle and speed
+        self.rect.x -= speed * math.cos(angle)
+        self.rect.y -= speed * math.sin(angle)
+
+
+    def update(self):
+        self.move()
 
 def player_enemy_collision():
     return pygame.sprite.spritecollide(player, enemy_group, False)
@@ -156,7 +171,7 @@ player_group.add(player)
 
 
 enemy_group = pygame.sprite.Group()
-for i in range (10):
+for i in range (5):
     enemy_group.add(Enemy())
     if player_enemy_collision():
         enemy_group.remove(enemy_group.sprites()[-1])
