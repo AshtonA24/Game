@@ -8,6 +8,7 @@ clock = pygame.time.Clock()
 is_swipe = False
 waves_complete = 0
 game_run = True
+text_font = pygame.font.Font('font2.ttf',12)
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -24,14 +25,12 @@ class Player(pygame.sprite.Sprite):
         self.dead6 = pygame.transform.scale_by(pygame.image.load('graphics/player/dead/dead6.png'),(0.1))
         self.dead7 = pygame.transform.scale_by(pygame.image.load('graphics/player/dead/dead7.png'),(0.1))
 
-
         #for player animation
         self.frames_walk = [self.player_walk1, self.player_walk2, self.player_walk3, self.player_walk4]
         self.frames_dead = [self.dead1, self.dead2, self.dead3, self.dead4, self.dead5, self.dead6, self.dead7, self.dead7, self.dead7, self.dead7, self.dead7]
         self.index = 0
         self.image = self.frames_walk[self.index]
         
-
         self.rect = self.image.get_rect(center = (700,500))
         self.boundries_rect = pygame.Rect(-20,260,1440,500)
         self.left = False
@@ -46,7 +45,8 @@ class Player(pygame.sprite.Sprite):
         global is_swipe, sword_swipe_group, sword_swipe
         # keyboard
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]: self.rect.y -= self.speed
+        if keys[pygame.K_w]: 
+            self.rect.y -= self.speed
         if keys[pygame.K_a]: 
             self.rect.x -= self.speed
             self.left = True
@@ -55,7 +55,7 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_d]: 
             self.rect.x += self.speed
             self.left = False
-            #
+            
         if not keys[pygame.K_w] and not keys[pygame.K_a] and not keys[pygame.K_s] and not keys[pygame.K_d]: self.moving = False
         else:self.moving = True
         #mouse
@@ -89,7 +89,6 @@ class Player(pygame.sprite.Sprite):
             if self.left:
                 self.image = pygame.transform.flip(self.image, True, False)
         
-
     def get_pos(self):
         return (self.rect.midtop)
     
@@ -109,7 +108,6 @@ class Player(pygame.sprite.Sprite):
 class SwordSwipe(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-
         self.blank = pygame.image.load('graphics/sword/Empty2.png')
         self.swipe1 = pygame.transform.scale_by(pygame.image.load('graphics/sword/1 - copy.png'),(0.3))
         self.swipe2 = pygame.transform.scale_by(pygame.image.load('graphics/sword/2 - copy.png'),(0.3))
@@ -119,15 +117,17 @@ class SwordSwipe(pygame.sprite.Sprite):
         self.swipe6 = pygame.transform.scale_by(pygame.image.load('graphics/sword/6 - copy.png'),(0.3))
         self.swipe7 = pygame.transform.scale_by(pygame.image.load('graphics/sword/7 - copy.png'),(0.3))
         self.swipe8 = pygame.transform.scale_by(pygame.image.load('graphics/sword/8 - copy.png'),(0.3))
-
         self.frames = [self.blank, self.swipe1, self.swipe2, self.swipe3, self.swipe4, self.swipe5, self.swipe6, self.swipe7, self.swipe8]
         self.index = 0
         self.image = self.blank
         self.rect = self.image.get_rect(center = (player.rect.center[0],player.rect.center[1]))
 
+        self.woosh = pygame.mixer.Sound("sounds/sword/woosh.mp3")
+
     def animation(self):
         global is_swipe, sword_swipe
         if is_swipe:
+            if self.index == 0: self.woosh.play()
             self.index += 1
             if self.index >= len(self.frames): 
                 self.index = 0
@@ -144,19 +144,17 @@ class SwordSwipe(pygame.sprite.Sprite):
         else:
             self.rect.midleft = (player.rect.midright[0], player.rect.center[1])
         
-        
     def update(self):
         self.check_move()
         self.animation()
-        
-class Enemy(pygame.sprite.Sprite):
+    
+class Ogre(pygame.sprite.Sprite):
     def __init__(self, left_spawn):
         super().__init__()
         self.stand = pygame.transform.scale_by(pygame.image.load('graphics/enemy/stand.png'),(0.2))
         self.walk1 = pygame.transform.scale_by(pygame.image.load('graphics/enemy/walk1.png'),(0.2))
         self.walk2 = pygame.transform.scale_by(pygame.image.load('graphics/enemy/walk2.png'),(0.2))
         self.walk3 = pygame.transform.scale_by(pygame.image.load('graphics/enemy/walk3.png'),(0.2))
-
         self.attack1 = pygame.transform.scale_by(pygame.image.load('graphics/enemy/attack1.png'),(0.2))
         self.attack2 = pygame.transform.scale_by(pygame.image.load('graphics/enemy/attack2.png'),(0.2))
         self.attack3 = pygame.transform.scale_by(pygame.image.load('graphics/enemy/attack3.png'),(0.2))
@@ -171,16 +169,14 @@ class Enemy(pygame.sprite.Sprite):
         self.index_walk = 0
         self.image = self.frames_walk[self.index_walk]
         self.left = False
-        self.max_health = 100
+        self.max_health = 200
         self.health = self.max_health
         self.left_spawn = left_spawn
         if self.left_spawn: self.x = -100
         else: self.x = 1500
         self.dead = False
         self.attack_rect = pygame.Rect(0,0,0,0)
-         
-
-
+        
         # self.rect = self.image.get_rect(center = (randint(0,1400),randint(400,700)))
         self.rect = self.image.get_rect(midleft = (self.x, randint(300,700)))
         self.left = False
@@ -195,12 +191,12 @@ class Enemy(pygame.sprite.Sprite):
     def move(self):
         global enemy_group
 
-        prev = self.rect.center
+        prev = self.rect.center 
         
         x = self.rect.center[0] - player.rect.center[0]
         y = self.rect.center[1] - player.rect.center[1]
         angle = math.atan2(y, x)
-        speed = 2
+        speed = 5
         move_x = speed * math.cos(angle)
         move_y = speed * math.sin(angle)
 
@@ -216,9 +212,6 @@ class Enemy(pygame.sprite.Sprite):
         if self.moving:
             self.rect.x -= move_x
             self.rect.y -= move_y
-        
-        # if pygame.sprite.spritecollide(self, enemy_group, False):
-        #     self.rect.center = prev
 
         for enemy in enemy_group:
             if pygame.sprite.collide_rect(self, enemy) and enemy != self:
@@ -265,7 +258,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def animation(self):
         if self.moving:
-            self.index_walk += 0.1
+            self.index_walk += 0.15
             if self.index_walk >= len(self.frames_walk):
                 self.index_walk = 0
             self.image = self.frames_walk[int(self.index_walk)]
@@ -273,12 +266,10 @@ class Enemy(pygame.sprite.Sprite):
                 self.image = pygame.transform.flip(self.image, True, False)
 
         if self.attacking:
-            self.index_attack += 0.25
+            self.index_attack += 0.35
             if self.index_attack >= len(self.frames_attack):
                 self.index_attack = 0
                 self.attacking = False
-                # if pygame.sprite.spritecollide(self, player_group, False):
-                #     player.dead = True
                 if self.attack_rect.colliderect(player.rect):
                     player.dead = True
             self.image = self.frames_attack[int(self.index_attack)]
@@ -297,17 +288,16 @@ class Enemy(pygame.sprite.Sprite):
             self.check_health()
             self.check_dead()
             
-            
 def restart_game():
     global game_run, enemy_group
     game_run = True
     enemy_group.empty()
-  
+
     player.rect.center = (700,500)
     player.dead = False
     player.full_dead = False
-    enemy_group.add(Enemy(True))
-    enemy_group.add(Enemy(False))
+    enemy_group.add(Ogre(True))
+    enemy_group.add(Ogre(False))
 #blackground
 rescale = 800/2160
 background = pygame.transform.scale_by(pygame.image.load('graphics/background/game_background_4.png').convert_alpha(),rescale)
@@ -318,20 +308,15 @@ background_rocks = pygame.transform.scale_by(pygame.image.load('graphics/backgro
 player = Player()
 player_group = pygame.sprite.GroupSingle()
 player_group.add(player)
-
 enemy_group = pygame.sprite.Group()
-enemy_group.add(Enemy(True))
-enemy_group.add(Enemy(False))
-
-
+enemy_group.add(Ogre(True))
+enemy_group.add(Ogre(False))
 # for i in range(4):
-#     enemy_group.add(Enemy(choice([True,False])))
+#     enemy_group.add(Ogre(choice([True,False])))
 #     collide = pygame.sprite.spritecollide(enemy_group.sprites()[i], enemy_group, False)
 #     while collide and pygame.sprite.spritecollide(enemy_group.sprites()[i], enemy_group, False) != enemy_group.sprites()[i]:
 #         enemy_group.remove(enemy_group.sprites()[i])
-#         enemy_group.add(Enemy(choice([True,False])))
-
-        
+#         enemy_group.add(Ogre(choice([True,False])))
 
 sword_swipe = SwordSwipe()
 sword_swipe_group = pygame.sprite.GroupSingle()
@@ -341,9 +326,8 @@ game_over_rect = pygame.Rect(0,0,700,400)
 game_over_rect.center = (700,400)
 game_over_rect_outline = pygame.Rect(0,0,720,420)
 game_over_rect_outline.center = (700,400)
-
-
-
+game_over_text = text_font.render('Game Over', True, (120,120,120))
+game_over_text_rect = game_over_text.get_rect(center = (400, 700))
 
 
 while True:
@@ -353,12 +337,11 @@ while True:
             exit()
         
     if game_run:
-
         screen.blit(background,(0,0))
         #hitboxes
         # for enemy in enemy_group:
         #     pygame.draw.rect(screen, (255,0,0), enemy.rect, 1)
-        #     pygame.draw.rect(screen, (0,255,0), enemy.attack_rect, 1)
+        #     pygame.draw.rect(screen, (255,0,255), enemy.attack_rect, 1)
         # pygame.draw.rect(screen, (0,0,255), player.rect, 1)
         # pygame.draw.rect(screen, (0,255,0), sword_swipe.rect, 1)
         enemy_group.draw(screen)
@@ -369,18 +352,13 @@ while True:
         sword_swipe_group.update()
         # pygame.sprite.spritecollide(sword_swipe, enemy_group, is_swipe)
         screen.blit(background_rocks,(0,0))
-        
-        
-
-        if player.full_dead:
-            game_run = False
-        
-        if pygame.key.get_pressed()[pygame.K_SPACE]:
-            restart_game()
+        if player.full_dead: game_run = False
+        if pygame.key.get_pressed()[pygame.K_SPACE]: restart_game()
 
     else:
         pygame.draw.rect(screen,(255,255,255), game_over_rect_outline,20,20)
         pygame.draw.rect(screen,(110,127,128), game_over_rect,10000,20)
+        screen.blit(game_over_text, game_over_text_rect)
 
         #restart game
         if pygame.key.get_pressed()[pygame.K_SPACE]:
