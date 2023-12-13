@@ -98,6 +98,8 @@ class Player(pygame.sprite.Sprite):
         if self.rect.left <= self.boundries_rect.left: self.rect.left = self.boundries_rect.left
         if self.rect.right >= self.boundries_rect.right: self.rect.right = self.boundries_rect.right
 
+        if pygame.sprite.spritecollide(self, projectile_group, True): self.dead = True
+
     def update(self):
         if not self.dead:
             self.player_input()
@@ -325,7 +327,7 @@ class Mage(pygame.sprite.Sprite):
         self.index_walk = 0
         self.image = self.frames_walk[self.index_walk]
         self.left = False
-        self.max_health = 75
+        self.max_health = 125
         self.health = self.max_health
         self.left_spawn = left_spawn
         if self.left_spawn: self.x = -100
@@ -383,6 +385,10 @@ class Mage(pygame.sprite.Sprite):
         self.i_frame_timer -= 1
         if self.i_frame_timer < 0: self.i_frame = False
         else: self.i_frame = True
+
+    def check_melee(self):
+        if self.rect.colliderect(player.rect):
+            player.dead = True
     
     def check_attack(self):
         distance = math.hypot(player.rect.center[0] - self.rect.center[0], player.rect.center[1] - self.rect.center[1])
@@ -393,8 +399,8 @@ class Mage(pygame.sprite.Sprite):
         global projectile_group
         speed = 10
         angle = math.atan2(player.rect.center[1]-self.rect.center[1], player.rect.center[0]-self.rect.center[0])
-        dx = math.cos(angle) * speed
-        dy = math.sin(angle) * speed
+        dx = math.cos(angle)
+        dy = math.sin(angle)
         projectile_group.add(MageBall(self.rect.center, dx, dy))
     
     def check_health(self):
@@ -428,7 +434,7 @@ class Mage(pygame.sprite.Sprite):
             if self.index_attack >= len(self.frames_attack):
                 self.index_attack = 0
                 self.shoot_ball()
-                self.attack_timer = 120
+                self.attack_timer = 85
                 self.attacking = False
                 if self.attack_rect.colliderect(player.rect):
                     player.dead = True
@@ -447,25 +453,40 @@ class Mage(pygame.sprite.Sprite):
             self.check_sword_hit()
             self.check_attack()
             self.check_health()
+            self.check_melee()
             self.check_dead()
 
 class MageBall(pygame.sprite.Sprite):
     def __init__(self, start, dx, dy):
         super().__init__()
 
-        orb = pygame.image.load('graphics/projectiles/mage/orb.png')
-        self.image = orb
+        self.orb = pygame.image.load('graphics/projectiles/mage/orb.png')
+        self.image = self.orb
         self.rect = self.image.get_rect(center = start)
         self.dx = dx
         self.dy = dy
-
+        self.speed = 1
+        self.rotate_int = 0
+        self.boundries_rect = pygame.Rect(-50,-50,1500,900)
     def move(self):
-        self.rect.x += self.dx
-        self.rect.y += self.dy
+        self.rect.x += self.dx * self.speed
+        self.rect.y += self.dy * self.speed
+    
+    def rotate(self):
+        self.image = pygame.transform.rotate(self.orb,self.rotate_int)
+        self.rotate_int += 5
+
+    def check_collisions(self):
+        if self.rect.top <= self.boundries_rect.top: projectile_group.remove(self)
+        if self.rect.bottom >= self.boundries_rect.bottom: projectile_group.remove(self)
+        if self.rect.left <= self.boundries_rect.left: projectile_group.remove(self)
+        if self.rect.right >= self.boundries_rect.right: projectile_group.remove(self)
+
 
     def update(self):
         self.move()
-
+        self.rotate()
+        self.check_collisions()
             
 def restart_game():
     global game_run, enemy_group
@@ -477,6 +498,8 @@ def restart_game():
     player.full_dead = False
     # enemy_group.add(Ogre(True))
     enemy_group.add(Mage(False))
+    # enemy_group.add(Ogre(False))
+    enemy_group.add(Mage(True))
 #blackground
 rescale = 800/2160
 background = pygame.transform.scale_by(pygame.image.load('graphics/background/game_background_4.png').convert_alpha(),rescale)
@@ -535,6 +558,7 @@ while True:
         screen.blit(background_rocks,(0,0))
         if player.full_dead: game_run = False
         if pygame.key.get_pressed()[pygame.K_SPACE]: restart_game()
+        if pygame.key.get_pressed()[pygame.K_ESCAPE]: game_run = False
 
     else:
         pygame.draw.rect(screen,(255,255,255), main_menu_rect_outline,20,20)
@@ -548,7 +572,6 @@ while True:
         if pygame.key.get_pressed()[pygame.K_SPACE]:
             restart_game()
         
-
     pygame.display.update()
     clock.tick(60)
         
