@@ -1,6 +1,5 @@
-import pygame, math, Projectiles
+import pygame, math, Projectiles, Enemies
 from random import randint
-from random import choice
 pygame.init()
 screen = pygame.display.set_mode((1400,800))
 pygame.display.set_caption("GAME")
@@ -244,15 +243,13 @@ class Ogre(pygame.sprite.Sprite):
             enemy_group.remove(self)
 
     def draw_health_bar(self):
-        white_rect = pygame.Rect(0,0, 50, 5)
-        green_rect = pygame.Rect(0,0, 50 * (self.health/self.max_health), 5)
-        white_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
-        green_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
+        self.white_rect = pygame.Rect(0,0, 50, 5)
+        self.green_rect = pygame.Rect(0,0, 50 * (self.health/self.max_health), 5)
+        self.white_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
+        self.green_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
         if self.left:
-            white_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
-            green_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
-        pygame.draw.rect(screen, (255,255,255), white_rect)
-        pygame.draw.rect(screen, (0,255,0), green_rect)
+            self.white_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
+            self.green_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
 
     def attack_hitbox_rect(self):
         self.attack_rect = pygame.Rect(0,0,150,100)
@@ -413,12 +410,10 @@ class Mage(pygame.sprite.Sprite):
             enemy_group.remove(self)
 
     def draw_health_bar(self):
-        white_rect = pygame.Rect(0,0, 50, 5)
-        green_rect = pygame.Rect(0,0, 50 * (self.health/self.max_health), 5)
-        white_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
-        green_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
-        pygame.draw.rect(screen, (255,255,255), white_rect)
-        pygame.draw.rect(screen, (0,255,0), green_rect)
+        self.white_rect = pygame.Rect(0,0, 50, 5)
+        self.green_rect = pygame.Rect(0,0, 50 * (self.health/self.max_health), 5)
+        self.white_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
+        self.green_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
 
     def animation(self):
         if self.moving:
@@ -532,6 +527,10 @@ while True:
         sword_swipe_group.draw(screen)
         sword_swipe_group.update()
         screen.blit(background_rocks,(0,0))
+        #draw health bars
+        for enemy in enemy_group:
+            pygame.draw.rect(screen, (255,255,255), enemy.white_rect)
+            pygame.draw.rect(screen, (0,255,0), enemy.green_rect)
         show_hitboxes(False)
         if player.full_dead: game_run = False
         if pygame.key.get_pressed()[pygame.K_SPACE]: restart_game()

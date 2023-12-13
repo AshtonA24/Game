@@ -1,6 +1,8 @@
 import pygame,math
 from random import randint
-from Main import player,is_swipe,sword_swipe,player_group,sword_swipe_group,screen
+from Main import Player,is_swipe,sword_swipe,player_group,sword_swipe_group
+
+enemy_group = pygame.sprite.Group()
 
 class Ogre(pygame.sprite.Sprite):
     def __init__(self, left_spawn):
@@ -95,15 +97,13 @@ class Ogre(pygame.sprite.Sprite):
             enemy_group.remove(self)
 
     def draw_health_bar(self):
-        white_rect = pygame.Rect(0,0, 50, 5)
-        green_rect = pygame.Rect(0,0, 50 * (self.health/self.max_health), 5)
-        white_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
-        green_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
+        self.white_rect = pygame.Rect(0,0, 50, 5)
+        self.green_rect = pygame.Rect(0,0, 50 * (self.health/self.max_health), 5)
+        self.white_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
+        self.green_rect.topleft = (self.rect.bottomleft[0], self.rect.bottomleft[1] + 5)
         if self.left:
-            white_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
-            green_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
-        pygame.draw.rect(screen, (255,255,255), white_rect)
-        pygame.draw.rect(screen, (0,255,0), green_rect)
+            self.white_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
+            self.green_rect.topleft = (self.rect.bottomleft[0] + 27, self.rect.bottomleft[1] + 5)
 
     def attack_hitbox_rect(self):
         self.attack_rect = pygame.Rect(0,0,150,100)
@@ -129,3 +129,15 @@ class Ogre(pygame.sprite.Sprite):
             self.image = self.frames_attack[int(self.index_attack)]
             if self.left:
                 self.image = pygame.transform.flip(self.image, True, False)
+
+
+    def update(self):
+        if not player.dead:
+            self.draw_health_bar()
+            self.move()
+            self.attack_hitbox_rect()
+            self.animation()
+            self.check_sword_hit()
+            self.check_attack()
+            self.check_health()
+            self.check_dead()
