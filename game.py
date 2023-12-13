@@ -27,7 +27,8 @@ class Player(pygame.sprite.Sprite):
 
         #for player animation
         self.frames_walk = [self.player_walk1, self.player_walk2, self.player_walk3, self.player_walk4]
-        self.frames_dead = [self.dead1, self.dead2, self.dead3, self.dead4, self.dead5, self.dead6, self.dead7, self.dead7, self.dead7, self.dead7, self.dead7]
+        self.frames_dead = [self.dead1, self.dead2, self.dead3, self.dead4, self.dead5, self.dead6, 
+        self.dead7, self.dead7, self.dead7, self.dead7, self.dead7,self.dead7, self.dead7, self.dead7, self.dead7]
         self.index = 0
         self.image = self.frames_walk[self.index]
         
@@ -81,7 +82,7 @@ class Player(pygame.sprite.Sprite):
                 self.image = pygame.transform.flip(self.image, True, False)
      
         if self.dead:
-            self.index += 0.2
+            self.index += 0.17
             if self.index >= len(self.frames_dead):
                 self.index = 0
                 self.full_dead = True
