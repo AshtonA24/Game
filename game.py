@@ -465,7 +465,7 @@ class MageBall(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = start)
         self.dx = dx
         self.dy = dy
-        self.speed = 1
+        self.speed = 15
         self.rotate_int = 0
         self.boundries_rect = pygame.Rect(-50,-50,1500,900)
     def move(self):
@@ -474,7 +474,7 @@ class MageBall(pygame.sprite.Sprite):
     
     def rotate(self):
         self.image = pygame.transform.rotate(self.orb,self.rotate_int)
-        self.rotate_int += 5
+        self.rotate_int += 10
 
     def check_collisions(self):
         if self.rect.top <= self.boundries_rect.top: projectile_group.remove(self)
@@ -499,7 +499,18 @@ def restart_game():
     # enemy_group.add(Ogre(True))
     enemy_group.add(Mage(False))
     # enemy_group.add(Ogre(False))
-    enemy_group.add(Mage(True))
+    enemy_group.add(Ogre(True))
+
+def show_hitboxes(show):
+    if show:
+        for enemy in enemy_group:
+            pygame.draw.rect(screen, (255,0,0), enemy.rect, 1)
+            pygame.draw.rect(screen, (255,0,255), enemy.attack_rect, 1)
+        for projectile in projectile_group:
+            pygame.draw.rect(screen, (0,255,0), projectile.rect, 1)
+        pygame.draw.rect(screen, (0,0,255), player.rect, 1) 
+        pygame.draw.rect(screen, (0,255,0), sword_swipe.rect, 1)
+
 #blackground
 rescale = 800/2160
 background = pygame.transform.scale_by(pygame.image.load('graphics/background/game_background_4.png').convert_alpha(),rescale)
@@ -541,12 +552,7 @@ while True:
         
     if game_run:
         screen.blit(background,(0,0))
-        # hitboxes
-        # for enemy in enemy_group:
-        #     pygame.draw.rect(screen, (255,0,0), enemy.rect, 1)
-        #     pygame.draw.rect(screen, (255,0,255), enemy.attack_rect, 1)
-        # pygame.draw.rect(screen, (0,0,255), player.rect, 1) 
-        # pygame.draw.rect(screen, (0,255,0), sword_swipe.rect, 1)
+        
         enemy_group.draw(screen)
         enemy_group.update()
         player_group.draw(screen)
@@ -556,6 +562,7 @@ while True:
         sword_swipe_group.draw(screen)
         sword_swipe_group.update()
         screen.blit(background_rocks,(0,0))
+        show_hitboxes(True)
         if player.full_dead: game_run = False
         if pygame.key.get_pressed()[pygame.K_SPACE]: restart_game()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]: game_run = False
