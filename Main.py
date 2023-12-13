@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, Projectiles
 from random import randint
 from random import choice
 pygame.init()
@@ -402,7 +402,7 @@ class Mage(pygame.sprite.Sprite):
         angle = math.atan2(player.rect.center[1]-self.rect.center[1], player.rect.center[0]-self.rect.center[0])
         dx = math.cos(angle)
         dy = math.sin(angle)
-        projectile_group.add(MageBall(self.rect.center, dx, dy))
+        projectile_group.add(Projectiles.MageBall(self.rect.center, dx, dy))
     
     def check_health(self):
         if self.health <= 0:
@@ -457,37 +457,6 @@ class Mage(pygame.sprite.Sprite):
             self.check_melee()
             self.check_dead()
 
-class MageBall(pygame.sprite.Sprite):
-    def __init__(self, start, dx, dy):
-        super().__init__()
-
-        self.orb = pygame.image.load('graphics/projectiles/mage/orb.png')
-        self.image = self.orb
-        self.rect = self.image.get_rect(center = start)
-        self.dx = dx
-        self.dy = dy
-        self.speed = 15
-        self.rotate_int = 0
-        self.boundries_rect = pygame.Rect(-50,-50,1500,900)
-    def move(self):
-        self.rect.x += self.dx * self.speed
-        self.rect.y += self.dy * self.speed
-    
-    def rotate(self):
-        self.image = pygame.transform.rotate(self.orb,self.rotate_int)
-        self.rotate_int += 10
-
-    def check_collisions(self):
-        if self.rect.top <= self.boundries_rect.top: projectile_group.remove(self)
-        if self.rect.bottom >= self.boundries_rect.bottom: projectile_group.remove(self)
-        if self.rect.left <= self.boundries_rect.left: projectile_group.remove(self)
-        if self.rect.right >= self.boundries_rect.right: projectile_group.remove(self)
-
-
-    def update(self):
-        self.move()
-        self.rotate()
-        self.check_collisions()
             
 def restart_game():
     global game_run, enemy_group
@@ -563,7 +532,7 @@ while True:
         sword_swipe_group.draw(screen)
         sword_swipe_group.update()
         screen.blit(background_rocks,(0,0))
-        show_hitboxes(True)
+        show_hitboxes(False)
         if player.full_dead: game_run = False
         if pygame.key.get_pressed()[pygame.K_SPACE]: restart_game()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]: game_run = False
