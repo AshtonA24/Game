@@ -17,7 +17,7 @@ def check_all_collisions():
             if sword_swipe.rect.colliderect(enemy.rect) and enemy.i_frame_timer < 0:
                 enemy.health -= 25
                 enemy.i_frame_timer = 30
-    if pygame.sprite.spritecollide(Player.player, projectile_group, True): Player.player.health -= 10
+    if pygame.sprite.spritecollide(Player.player, projectile_group, True): Player.player.health -= 5
     
 def update_sword_class():
         sword_swipe.player_pos_x = Player.player.rect.center[0]
@@ -38,6 +38,7 @@ def restart_game():
     enemy_group.add(Enemies.Mage(False))
     # enemy_group.add(Ogre(False))
     # enemy_group.add(Ogre(True))
+    Player.player.health = Player.player.max_health
     update_hearts()
 
 def update_hearts():
@@ -83,7 +84,22 @@ def move_enemy():
                 if pygame.sprite.collide_rect(enemy, enemy2) and enemy != enemy2:
                     enemy.rect.center = prev
         
-    
+def update_draw():
+    screen.blit(background,(0,0))
+    check_all_collisions()
+    move_enemy()
+    enemy_group.update()
+    enemy_group.draw(screen)
+    player_group.update()
+    player_group.draw(screen)
+    heart_group.update()
+    heart_group.draw(screen)
+    projectile_group.update()
+    projectile_group.draw(screen)
+    update_sword_class()
+    sword_swipe_group.update()
+    sword_swipe_group.draw(screen)
+    screen.blit(background_rocks,(0,0))
 
 #blackground
 rescale = 800/2160
@@ -95,10 +111,8 @@ player_group = Player.player_group
 heart_group = Player.heart_group
 enemy_group = Enemies.enemy_group
 projectile_group = Projectiles.projectile_group
-
 sword_swipe = Sword.sword_swipe
 sword_swipe_group = Sword.sword_swipe_group
-
 
 #game over screen
 main_menu_rect = pygame.Rect(0,0,700,400)
@@ -111,31 +125,15 @@ text_font = pygame.font.Font('graphics/fonts/old.ttf',30)
 replay_text = text_font.render('Press Space To play', True, (0,0,0))
 replay_text_rect = replay_text.get_rect(midtop = main_menu_rect.center)
 
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
-
-    screen.blit(background,(0,0))
-        
+    screen.blit(background,(0,0))      
     if game_run:
-        screen.blit(background,(0,0))
-        check_all_collisions()
-        move_enemy()
-        enemy_group.update()
-        enemy_group.draw(screen)
-        player_group.update()
-        player_group.draw(screen)
-        heart_group.update()
-        heart_group.draw(screen)
-        projectile_group.update()
-        projectile_group.draw(screen)
-        update_sword_class()
-        sword_swipe_group.update()
-        sword_swipe_group.draw(screen)
-        screen.blit(background_rocks,(0,0))
+       
+        update_draw()
 
         #draw health bars
         for enemy in enemy_group:
@@ -160,6 +158,3 @@ while True:
         
     pygame.display.update()
     clock.tick(60)
-        
-        
-    

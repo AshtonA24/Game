@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, Enemies
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -49,6 +49,9 @@ class Player(pygame.sprite.Sprite):
         if not keys[pygame.K_w] and not keys[pygame.K_a] and not keys[pygame.K_s] and not keys[pygame.K_d]: self.moving = False
         else:self.moving = True
         
+    def check_dead(self):
+        if player.health <= 0: player.dead = True
+
     def animation(self):
         if self.moving and not self.dead:
             self.index += 0.1
@@ -79,6 +82,7 @@ class Player(pygame.sprite.Sprite):
         # if pygame.sprite.spritecollide(self, projectile_group, True): self.dead = True
 
     def update(self):
+        self.check_dead()
         if not self.dead:
             self.player_input()
             self.collisions()
@@ -101,10 +105,12 @@ class Heart(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (35 * self.heart_num , 25))
 
     def check_hearts(self):
-        if player.health/10 < self.heart_num:
+        if player.health/10 < self.heart_num and (player.health+6)/10 > self.heart_num:
+            self.image = self.heart_half
+        if (player.health+5)/10 < self.heart_num:
             self.image = self.heart_empty
 
     def update(self):
         self.check_hearts()
-
+        
 heart_group = pygame.sprite.Group()
