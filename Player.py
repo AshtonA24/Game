@@ -19,6 +19,8 @@ class Player(pygame.sprite.Sprite):
         self.frames_dead = [self.dead1, self.dead2, self.dead3, self.dead4, self.dead5, self.dead6, 
         self.dead7, self.dead7, self.dead7, self.dead7, self.dead7,self.dead7, self.dead7, self.dead7, self.dead7]
         self.index = 0
+        self.max_health = 40
+        self.health = self.max_health
         self.image = self.frames_walk[self.index]
         
         self.rect = self.image.get_rect(center = (700,500))
@@ -85,3 +87,24 @@ class Player(pygame.sprite.Sprite):
 player = Player()
 player_group = pygame.sprite.GroupSingle()
 player_group.add(player)
+
+
+
+class Heart(pygame.sprite.Sprite):
+    def __init__(self, heart_num):
+        super().__init__()
+        self.heart_full = pygame.transform.scale_by(pygame.image.load('graphics/player/hearts/full.png'),(0.6))
+        self.heart_half = pygame.transform.scale_by(pygame.image.load('graphics/player/hearts/half.png'),(0.6))
+        self.heart_empty = pygame.transform.scale_by(pygame.image.load('graphics/player/hearts/empty.png'),(0.6))
+        self.image = self.heart_full
+        self.heart_num = heart_num
+        self.rect = self.image.get_rect(center = (35 * self.heart_num , 25))
+
+    def check_hearts(self):
+        if player.health/10 < self.heart_num:
+            self.image = self.heart_empty
+
+    def update(self):
+        self.check_hearts()
+
+heart_group = pygame.sprite.Group()

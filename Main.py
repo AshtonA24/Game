@@ -7,6 +7,7 @@ pygame.display.set_caption("GAME")
 clock = pygame.time.Clock()
 waves_complete = 0
 game_run = False
+num_hearts = int(Player.player.max_health / 10)
 text_font = pygame.font.Font('graphics/fonts/old.ttf',70)
 
 def check_all_collisions():
@@ -16,7 +17,7 @@ def check_all_collisions():
             if sword_swipe.rect.colliderect(enemy.rect) and enemy.i_frame_timer < 0:
                 enemy.health -= 25
                 enemy.i_frame_timer = 30
-    if pygame.sprite.spritecollide(Player.player, projectile_group, True): Player.player.dead = True
+    if pygame.sprite.spritecollide(Player.player, projectile_group, True): Player.player.health -= 10
     
 def update_sword_class():
         sword_swipe.player_pos_x = Player.player.rect.center[0]
@@ -33,10 +34,16 @@ def restart_game():
     Player.player.rect.center = (700,500)
     Player.player.dead = False
     Player.player.full_dead = False
-    enemy_group.add(Enemies.Ogre(True))
+    # enemy_group.add(Enemies.Ogre(True))
     enemy_group.add(Enemies.Mage(False))
     # enemy_group.add(Ogre(False))
     # enemy_group.add(Ogre(True))
+    update_hearts()
+
+def update_hearts():
+    heart_group.empty()
+    for i in range(1,num_hearts+1):
+        heart_group.add(Player.Heart(i))
 
 def show_hitboxes(show):
     if show:
@@ -49,32 +56,32 @@ def show_hitboxes(show):
         pygame.draw.rect(screen, (0,255,0), sword_swipe.rect, 1)
 
 def move_enemy():
-    for enemy in enemy_group:
-        prev = enemy.rect.center 
-        
-        x = enemy.rect.center[0] - Player.player.rect.center[0]
-        y = enemy.rect.center[1] - Player.player.rect.center[1]
-        angle = math.atan2(y, x)
-        speed = enemy.speed
-        move_x = speed * math.cos(angle)
-        move_y = speed * math.sin(angle)
+    if Player.player.dead == False:
+        for enemy in enemy_group:
+            prev = enemy.rect.center 
+            x = enemy.rect.center[0] - Player.player.rect.center[0]
+            y = enemy.rect.center[1] - Player.player.rect.center[1]
+            angle = math.atan2(y, x)
+            speed = enemy.speed
+            move_x = speed * math.cos(angle)
+            move_y = speed * math.sin(angle)
 
-        #checks direction for later
-        if x < 0: enemy.left = False
-        else: enemy.left = True
+            #checks direction for later
+            if x < 0: enemy.left = False
+            else: enemy.left = True
 
-        if enemy.attacking: enemy.moving = False
-        else: enemy.moving = True
+            if enemy.attacking: enemy.moving = False
+            else: enemy.moving = True
 
 
-        # Calculate the new position based on the angle and speed
-        if enemy.moving:
-            enemy.rect.x -= move_x
-            enemy.rect.y -= move_y
+            # Calculate the new position based on the angle and speed
+            if enemy.moving:
+                enemy.rect.x -= move_x
+                enemy.rect.y -= move_y
 
-        for enemy2 in enemy_group:
-            if pygame.sprite.collide_rect(enemy, enemy2) and enemy != enemy2:
-                enemy.rect.center = prev
+            for enemy2 in enemy_group:
+                if pygame.sprite.collide_rect(enemy, enemy2) and enemy != enemy2:
+                    enemy.rect.center = prev
         
     
 
@@ -85,6 +92,7 @@ background_rocks = pygame.transform.scale_by(pygame.image.load('graphics/backgro
 
 #initializing classes
 player_group = Player.player_group
+heart_group = Player.heart_group
 enemy_group = Enemies.enemy_group
 projectile_group = Projectiles.projectile_group
 
@@ -120,6 +128,8 @@ while True:
         enemy_group.draw(screen)
         player_group.update()
         player_group.draw(screen)
+        heart_group.update()
+        heart_group.draw(screen)
         projectile_group.update()
         projectile_group.draw(screen)
         update_sword_class()
