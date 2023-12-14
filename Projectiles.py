@@ -12,6 +12,7 @@ class MageBall(pygame.sprite.Sprite):
         self.speed = 15
         self.rotate_int = 0
         self.boundries_rect = pygame.Rect(-50,-50,1500,900)
+
     def move(self):
         self.rect.x += self.dx * self.speed
         self.rect.y += self.dy * self.speed
@@ -31,3 +32,5 @@ class MageBall(pygame.sprite.Sprite):
         self.move()
         self.rotate()
         self.check_collisions()
+
+projectile_group = pygame.sprite.Group()
