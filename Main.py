@@ -8,7 +8,7 @@ clock = pygame.time.Clock()
 waves_complete = 0
 game_run = False
 num_hearts = int(Player.player.max_health / 10)
-text_font = pygame.font.Font('graphics/fonts/old.ttf',70)
+text_font = pygame.font.Font('graphics/fonts/old.ttf',70) 
 
 def check_all_collisions():
     #check sword collisions
