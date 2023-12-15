@@ -12,7 +12,7 @@ class SwordSwipe(pygame.sprite.Sprite):
         self.swipe6 = pygame.transform.scale_by(pygame.image.load('graphics/sword/6 - copy.png'),(0.3))
         self.swipe7 = pygame.transform.scale_by(pygame.image.load('graphics/sword/7 - copy.png'),(0.3))
         self.swipe8 = pygame.transform.scale_by(pygame.image.load('graphics/sword/8 - copy.png'),(0.3))
-        self.frames = [self.blank, self.swipe1, self.swipe2, self.swipe3, self.swipe4, self.swipe5, self.swipe6, self.swipe7, self.swipe8]
+        self.frames = [self.blank,self.blank, self.swipe1, self.swipe2, self.swipe3, self.swipe4, self.swipe5, self.swipe6, self.swipe7, self.swipe8]
         self.index = 0
         self.image = self.blank
         self.rect = self.image.get_rect(center = (0,0))
@@ -26,7 +26,6 @@ class SwordSwipe(pygame.sprite.Sprite):
         
     def user_input(self):
         if pygame.mouse.get_pressed()[0] and self.timer < 0:
-            print('yuh')
             self.timer = 30
             self.woosh.play()
             self.is_swipe = True
@@ -36,6 +35,21 @@ class SwordSwipe(pygame.sprite.Sprite):
             else:
                 self.left = False
                 self.left_side_click = False
+
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT]and self.timer < 0: 
+            self.timer = 30
+            self.woosh.play()
+            self.is_swipe = True
+            self.left = True
+            self.left_side_click = True
+        elif keys[pygame.K_RIGHT]and self.timer < 0:
+            self.timer = 30
+            self.woosh.play()
+            self.is_swipe = True
+            self.left = False
+            self.left_side_click = False
+
 
     def animation(self):
         if self.is_swipe:

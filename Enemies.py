@@ -2,7 +2,7 @@ import pygame, math, Player, Projectiles
 from random import randint
 
 class Mage(pygame.sprite.Sprite):
-    def __init__(self, left_spawn):
+    def __init__(self, left_spawn, y):
         super().__init__()
         self.walk1 = pygame.transform.scale_by(pygame.image.load('graphics/mage/walk/1.png'),(0.2))
         self.walk2 = pygame.transform.scale_by(pygame.image.load('graphics/mage/walk/2.png'),(0.2))
@@ -38,7 +38,7 @@ class Mage(pygame.sprite.Sprite):
         self.index_walk = 0
         self.image = self.frames_walk[self.index_walk]
         self.left = False
-        self.max_health = 125
+        self.max_health = 75
         self.health = self.max_health
         self.left_spawn = left_spawn
         if self.left_spawn: self.x = -100
@@ -48,7 +48,7 @@ class Mage(pygame.sprite.Sprite):
         self.attack_rect = pygame.Rect(0,0,0,0)
         
         # self.rect = self.image.get_rect(center = (randint(0,1400),randint(400,700)))
-        self.rect = self.image.get_rect(midleft = (self.x, randint(300,700)))
+        self.rect = self.image.get_rect(midleft = (self.x, y))
         self.left = False
         self.left_side_click = False
         self.speed = 2
@@ -116,7 +116,7 @@ class Mage(pygame.sprite.Sprite):
             self.i_frame_timer -= 1
 
 class Ogre(pygame.sprite.Sprite):
-    def __init__(self, left_spawn):
+    def __init__(self, left_spawn, y):
         super().__init__()
         self.stand = pygame.transform.scale_by(pygame.image.load('graphics/ogre/stand.png'),(0.2))
         self.walk1 = pygame.transform.scale_by(pygame.image.load('graphics/ogre/walk1.png'),(0.2))
@@ -136,7 +136,7 @@ class Ogre(pygame.sprite.Sprite):
         self.index_walk = 0
         self.image = self.frames_walk[self.index_walk]
         self.left = False
-        self.max_health = 200
+        self.max_health = 125
         self.health = self.max_health
         self.left_spawn = left_spawn
         if self.left_spawn: self.x = -100
@@ -144,13 +144,14 @@ class Ogre(pygame.sprite.Sprite):
         self.dead = False
         self.type = 'ogre'
         self.attack_rect = pygame.Rect(0,0,0,0)
+        self.attack_damage = 10
      
         
         # self.rect = self.image.get_rect(center = (randint(0,1400),randint(400,700)))
-        self.rect = self.image.get_rect(midleft = (self.x, randint(300,700)))
+        self.rect = self.image.get_rect(midleft = (self.x, y))
         self.left = False
         self.left_side_click = False
-        self.speed = 5
+        self.speed = 3
         self.moving = True
         self.attacking = False
         self.i_frame = False
@@ -193,7 +194,7 @@ class Ogre(pygame.sprite.Sprite):
                 self.index_attack = 0
                 self.attacking = False
                 if self.attack_rect.colliderect(Player.player.rect):
-                    Player.player.dead = True
+                    Player.player.health -= self.attack_damage
             self.image = self.frames_attack[int(self.index_attack)]
             if self.left:
                 self.image = pygame.transform.flip(self.image, True, False)

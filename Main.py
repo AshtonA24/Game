@@ -6,6 +6,8 @@ screen = pygame.display.set_mode((1400,800))
 pygame.display.set_caption("GAME")
 clock = pygame.time.Clock()
 waves_complete = 0
+level = 1
+new_level_timer = 60
 game_run = False
 num_hearts = int(Player.player.max_health / 10)
 text_font = pygame.font.Font('graphics/fonts/old.ttf',70) 
@@ -27,17 +29,13 @@ def update_sword_class():
             sword_swipe.rect.midleft = (Player.player.rect.midright[0], Player.player.rect.center[1])
 
 def restart_game():
-    global game_run, enemy_group
+    global game_run, enemy_group, level
     game_run = True
     enemy_group.empty()
-
     Player.player.rect.center = (700,500)
     Player.player.dead = False
     Player.player.full_dead = False
-    # enemy_group.add(Enemies.Ogre(True))
-    enemy_group.add(Enemies.Mage(False))
-    # enemy_group.add(Ogre(False))
-    # enemy_group.add(Ogre(True))
+    level = 1
     Player.player.health = Player.player.max_health
     update_hearts()
 
@@ -81,9 +79,9 @@ def move_enemy():
                 enemy.rect.y -= move_y
 
             for enemy2 in enemy_group:
-                if pygame.sprite.collide_rect(enemy, enemy2) and enemy != enemy2:
+                if enemy.type == enemy2.type and pygame.sprite.collide_rect(enemy, enemy2) and enemy != enemy2:
                     enemy.rect.center = prev
-        
+
 def update_draw():
     screen.blit(background,(0,0))
     check_all_collisions()
@@ -101,7 +99,42 @@ def update_draw():
     sword_swipe_group.draw(screen)
     screen.blit(background_rocks,(0,0))
 
-#blackground
+def pick_buff():
+    placeholder_rect = pygame.Rect(0,0,225,100)
+    placeholder_rect.center = (700,400)
+    left_choice_rect = pygame.Rect(0,0,100,100)
+    right_choice_rect = pygame.Rect(0,0,100,100)
+    left_choice_rect.topleft = placeholder_rect.topleft
+    right_choice_rect.topright = placeholder_rect.topright
+    pygame.draw.rect(screen, (255,255,255), right_choice_rect)
+    pygame.draw.rect(screen, (255,255,255), left_choice_rect)
+
+def next_level(lvl):
+    global level, new_level_timer
+    new_level_timer = 60
+    if lvl == 1:
+        enemy_group.add(Enemies.Ogre(False,450))
+    if lvl == 2:
+        enemy_group.add(Enemies.Ogre(False,450))
+        enemy_group.add(Enemies.Ogre(True, 650))
+    if lvl == 3:
+        enemy_group.add(Enemies.Ogre(False,450))
+        enemy_group.add(Enemies.Mage(False, 650))
+    if lvl == 4:
+        enemy_group.add(Enemies.Mage(False,450))
+        enemy_group.add(Enemies.Mage(True, 450))
+    if lvl == 5:
+        enemy_group.add(Enemies.Mage(False,450))
+        enemy_group.add(Enemies.Mage(True, 650))
+        enemy_group.add(Enemies.Ogre(False, 650))
+    if lvl == 6:
+        enemy_group.add(Enemies.Mage(False,450))
+        enemy_group.add(Enemies.Mage(True, 450))
+        enemy_group.add(Enemies.Ogre(False, 650))
+        enemy_group.add(Enemies.Ogre(True, 650))
+
+    level += 1
+#background
 rescale = 800/2160
 background = pygame.transform.scale_by(pygame.image.load('graphics/background/game_background_4.png').convert_alpha(),rescale)
 background_rocks = pygame.transform.scale_by(pygame.image.load('graphics/background/front_decor.png').convert_alpha(),rescale)
@@ -125,6 +158,7 @@ text_font = pygame.font.Font('graphics/fonts/old.ttf',30)
 replay_text = text_font.render('Press Space To play', True, (0,0,0))
 replay_text_rect = replay_text.get_rect(midtop = main_menu_rect.center)
 
+# pick buff screen
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -143,6 +177,10 @@ while True:
         if Player.player.full_dead: game_run = False
         if pygame.key.get_pressed()[pygame.K_SPACE]: restart_game()
         if pygame.key.get_pressed()[pygame.K_ESCAPE]: game_run = False
+        if not enemy_group:
+            new_level_timer -= 1
+            if new_level_timer < 0:
+                next_level(level)
 
     else:
         pygame.draw.rect(screen,(255,255,255), main_menu_rect_outline,20,20)
@@ -154,6 +192,7 @@ while True:
 
         #restart game
         if pygame.key.get_pressed()[pygame.K_SPACE]:
+            
             restart_game()
         
     pygame.display.update()

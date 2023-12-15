@@ -19,7 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.frames_dead = [self.dead1, self.dead2, self.dead3, self.dead4, self.dead5, self.dead6, 
         self.dead7, self.dead7, self.dead7, self.dead7, self.dead7,self.dead7, self.dead7, self.dead7, self.dead7]
         self.index = 0
-        self.max_health = 40
+        self.max_health = 50
         self.health = self.max_health
         self.image = self.frames_walk[self.index]
         
